@@ -78,7 +78,6 @@ spec:
               - /homework/index.html
           initialDelaySeconds: 5
           periodSeconds: 5
-
         volumeMounts:
           - name: vol-httproot
             mountPath: "/homework"
