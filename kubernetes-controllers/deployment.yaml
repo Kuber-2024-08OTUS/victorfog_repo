@@ -28,18 +28,21 @@ metadata:
     HW: kubernetes-controllers
 spec:
   selector:
-    name: webserver
+    HW: kubernetes-controllers
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8000
-
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-webserver
+  name: dpl-webserver
+  namespace: homework
+  labels:
+    HW: deployment-kubernetes-controllers
 spec:
+  replicas: 3
   selector:
     matchLabels:
       name: deployment-webserver
@@ -54,41 +57,48 @@ spec:
           emptyDir: {}
         - name: vol-nginx-config
           configMap:
-          name: cmap-webserver 
-    initContainers:
-      - name: initindex
-        image: alpine
-        volumeMounts:
-          - name: vol-httproot
-            mountPath: "/init"
-        command:
-          - /bin/sh
-          - -c
-          - |
-            echo "My index html from HW 1" > /init/index.html
-    containers:
-      - name: webserver
-        image: nginx
-        ports:
-          - containerPort: 8000
-        readinessProbe:
-          exec:
-            command:
-              - cat
-              - /homework/index.html
-          initialDelaySeconds: 5
-          periodSeconds: 5
-        volumeMounts:
-          - name: vol-httproot
-            mountPath: "/homework"
-          - name: vol-nginx-config
-            mountPath: /etc/nginx/nginx.conf
-            subPath: nginx.conf
-        lifecycle:
-          preStop:
+            name: cmap-webserver
+      initContainers:
+        - name: initindex
+          image: alpine
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/init"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "My index html from HW 1" > /init/index.html
+      containers:
+        - name: webserver
+          image: nginx
+          ports:
+            - containerPort: 8000
+          readinessProbe:
             exec:
               command:
-                - /bin/sh
-                - -c
-                - |
-                  rm -f /homework/index.html
+                - cat
+                - /homework/index.html
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/homework"
+            - name: vol-nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    rm -f /homework/index.html
+          resources:
+            requests:
+              memory: "200Mi"
+              cpu: "250m"
+            limits:
+              memory: "400Mi"
+              cpu: "500m"
