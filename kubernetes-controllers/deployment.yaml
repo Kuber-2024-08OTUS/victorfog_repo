@@ -43,6 +43,11 @@ metadata:
     HW: deployment-kubernetes-controllers
 spec:
   replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1
+       maxUnavailable: 1
   selector:
     matchLabels:
       name: deployment-webserver
@@ -52,6 +57,8 @@ spec:
         name: deployment-webserver
         HW: kubernetes-controllers
     spec:
+      nodeSelector:
+        homework: "true"
       volumes:
         - name: vol-httproot
           emptyDir: {}
