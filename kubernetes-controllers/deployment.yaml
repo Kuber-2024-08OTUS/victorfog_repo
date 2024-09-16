@@ -1,5 +1,5 @@
 apiVersion: v1
-kind: ConfigMap
+kind: ConfigMap # создаем конфигурацию для использования в NGINX
 metadata:
   name: cmap-webserver
   namespace: homework
@@ -42,12 +42,12 @@ metadata:
   labels:
     HW: deployment-kubernetes-controllers
 spec:
-  replicas: 3
+  replicas: 3 # количество подов которое мы хотим запустить
   strategy:
     type: RollingUpdate
     rollingUpdate:
-       maxSurge: 1
-       maxUnavailable: 1
+       maxSurge: 1 # максимальное колическтво подов запущенное поверх сузествующих
+       maxUnavailable: 1 # максимальное количество подов выключенных для обновления
   selector:
     matchLabels:
       name: deployment-webserver
@@ -58,7 +58,7 @@ spec:
         HW: kubernetes-controllers
     spec:
       nodeSelector:
-        homework: "true"
+        homework: "true"  # указыввем требуемый Labal ноды  для размещения подов
       volumes:
         - name: vol-httproot
           emptyDir: {}
@@ -75,7 +75,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "My index html from HW 1" > /init/index.html
+              echo "My index html from HW 2" > /init/index.html
       containers:
         - name: webserver
           image: nginx
