@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: ing-webserver
   namespace: homework
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
   labels:
     name: myingress
 spec:
