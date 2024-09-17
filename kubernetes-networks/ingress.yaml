@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ing-webserver
+  namespace: homework
+  labels:
+    name: myingress
+spec:
+  rules:
+  - host: homework.mb2
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: svc-webserver
+            port: 
+              number: 80
