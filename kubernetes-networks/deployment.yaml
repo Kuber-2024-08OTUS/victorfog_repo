@@ -68,12 +68,21 @@ spec:
           ports:
             - containerPort: 8000
           readinessProbe:
-            exec:
-              command:
-                - cat
-                - /homework/index.html
+            # exec:
+            #   command:
+            #     - cat
+            #     - /homework/index.html
+            # initialDelaySeconds: 5
+            # periodSeconds: 5
+            httpGet:
+              path: /index.html
+              port: 8000
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
             initialDelaySeconds: 5
             periodSeconds: 5
+
           volumeMounts:
             - name: vol-httproot
               mountPath: "/homework"

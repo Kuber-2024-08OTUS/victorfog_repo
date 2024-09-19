@@ -10,11 +10,18 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: homework.mb2
+  - host: homework.otus
     http:
       paths:
         - pathType: Prefix
           path: /
+          backend:
+            service:
+              name: svc-webserver
+              port: 
+                number: 80
+        - pathType: ImplementationSpecific
+          path: /homepage
           backend:
             service:
               name: svc-webserver
