@@ -4,20 +4,19 @@ metadata:
   name: ing-webserver
   namespace: homework
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /
-  labels:
-    name: myingress
 spec:
+  ingressClassName: nginx
   rules:
   - host: homework.mb2
     http:
       paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: svc-webserver
-            port: 
-              number: 80
+        - pathType: Prefix
+          path: /
+          backend:
+            service:
+              name: svc-webserver
+              port: 
+                number: 80
