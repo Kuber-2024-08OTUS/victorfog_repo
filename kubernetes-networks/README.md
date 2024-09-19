@@ -4,14 +4,20 @@
  - [x] Задание со *
 
 ## В процессе сделано:
- - был создан deployment разворачивающий 3 контейнера и следащий за их состоянием
- - научились обновлять приложение
- - настроили probes для проверти работоспособности приложения
+ - настроен ингресс контроллер
+ - настроен ingress сервис для перенаправления http хапросов на веб сервер
+ - изменен probes с проверки файла на проверка http запроса
 
 ## Как запустить проект:
  - запускается minikube командой ``` minikube start --nodes 3 ```
+ - включаем ingress контроллер на minikube ``` minikube addons enable ingress ```
  - из каталога проекта, с помощью утилиты kubectl создается namespace ``` kubectl create -f namespace.yaml ```
  - после успешного создания namrspace, разворачивается deployment подами с окружением ``` kubectl creale -f deployment.yaml ```
+ - создаем сервис LoadBaalnser ```kubectl creale -f service.yaml```
+ - настраиваем service для ingress controller ``` kubectl create -f ingress-controller-lb.yaml ```
+ - настройка сомого ингресс для перенаправления запросов основываясь на http URL
+ - включить тунелирование ``` minikube tunnel ```
+
 
 ## Как проверить работоспособность:
  - проверить созданное пространство имен можно командой ``` kubectl get namespace | grep homework ```
@@ -19,28 +25,15 @@
     ```console
     homework               Active   45h
     ```
-
   - проверить созданные поды ``` kubectl get all --namespace homework | grep pod ```
-    ```
-    pod/dpl-webserver-667f89bd9b-9ljmt   0/1     Pending   0          10s
-    pod/dpl-webserver-667f89bd9b-jmkwv   0/1     Pending   0          10s
-    pod/dpl-webserver-667f89bd9b-pq8c5   0/1     Pending   0          10s
-    ```
-    как видно поды создались, но не запустились. - Это связанно с тем, что у нас выставленно требование наличие у нод метки homework с значением true
-    добавим LABEL homework=true на все ноды ```kubectl label node $(kubectl get nodes | awk /mini/'{print $1}') homework=true```
-
-  - проверить созданные поды ``` kubectl get all --namespace homework | grep pod ```
-
-    в ответ вы получите вывод 
     ``` console
     pod/dpl-webserver-667f89bd9b-2kfbd   1/1     Running   0          2d17h
     pod/dpl-webserver-667f89bd9b-cbxtk   1/1     Running   0          2d17h
     pod/dpl-webserver-667f89bd9b-q252d   1/1     Running   0          2d17h
     ```
     статус должен измениться на запущенные.
-
-  - проверим что все запустилось 
-    получим ссылку для проверки сервиса
+  - проверим что запустился service  ``` minikube service svc-webserver --url -n homework ```
+    получим ссылку для проверки сервиса ``
     ``` console 
     😿  service homework/svc-webserver has no node port
     ❗  Services [homework/svc-webserver] have type "ClusterIP" not meant to be exposed, however for local development minikube allows you to access this !
@@ -49,23 +42,32 @@
     ```
     проверим доступность ``` curl http://127.0.0.1:54587 ```    
     ```console
-    My index html from HW 1
+    My index html from HW 2
     ```
-  - проверка rollingupdate
-    Изменим параметры в deployment.yaml и запустим процесс обновления.
-    ```Deployment.yaml
-    .... echo "My index html from HW 1" > /init/index.html....
-    ````
-    заменим цифру 1 на 2 и выполним команду ``` kubectl apply -f deployment.yaml ```
+  - проверим как работает ingress controller ``` kubectl get svc ingress-nginx-controller-lb -n ingress-nginx ```
     ```
-    если в процессе обновления просмотреть что происходит с подами можно увиидеть как происходит обновление 
-    при этом выключенным будет только 1 под из 3х согласно политики обновления указанной в манифесте
+    NAME                          TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)                      AGE
+    ingress-nginx-controller-lb   LoadBalancer   10.107.57.45   10.107.57.45   80:31116/TCP,443:31061/TCP   29m
     ```
-    NAMESPACE     NAME                               READY   STATUS            RESTARTS       AGE
-    homework      dpl-webserver-5d7985877f-57ppc     0/1     PodInitializing   0              2s
-    homework      dpl-webserver-5d7985877f-69kcx     1/1     Running           0              17s
-    homework      dpl-webserver-5d7985877f-bnwr2     1/1     Running           0              17s
+  - проверка нормально созданного ingress ``` kubectl get ingress -n homework ```
+    ```
+    NAME            CLASS   HOSTS           ADDRESS        PORTS   AGE
+    ing-webserver   nginx   homework.otus   192.168.49.2   80      24m
     ```
 
+  - проверка надо прописать в hosts файл строку вида ip адресс из вывода ``` kubectl get svc ingress-nginx-controller-lb -n ingress-nginx ``` поля    external-it и имени сервиса из конфигурации  ``` kubectl get ingress -n homework -o yaml | grep host ```
+  ```
+  - host: homework.otus
+  ```
+  ``` file: ./hosts
+  10.107.57.45 homework.otus
+  ```
+  - проверяем как рабоатет 
+  curl http://homework.otus
+  curl http://homework.otus/homepage
+в обоих случаях мы увидим 
+```
+My index html from HW 2
+```
 ## PR checklist:
-  - [kubernetes-controllers] Выставлен label с темой домашнего задания
+  - [kubernetes-networks] Выставлен label с темой домашнего задания
