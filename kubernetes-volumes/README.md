@@ -4,15 +4,18 @@
  - [x] Задание со *
 
 ## В процессе сделано:
- - настроен ингресс контроллер
- - настроен ingress сервис для перенаправления http хапросов на веб сервер
- - изменен probes с проверки файла на проверка http запроса
+ - создание persistenvolumeclaim "создание запроса на использование хранилища"
+ - создние сужности configMap с конфигурацией nginx и рандомными полями ключ-значение
+ - 
 
 ## Как запустить проект:
  - запускается minikube командой ``` minikube start --nodes 3 ```
  - включаем ingress контроллер на minikube ``` minikube addons enable ingress ```
  - из каталога проекта, с помощью утилиты kubectl создается namespace ``` kubectl create -f namespace.yaml ```
- - после успешного создания namrspace, разворачивается deployment подами с окружением ``` kubectl creale -f deployment.yaml ```
+ - создание запроса на использование храненища ``` kubectl create -f pvc.yaml ```
+ - создания конфигурации для NGINX ``` kubectl create -f cm.yaml ```
+ - после успешного создания namrspace, configMap, PersistentVolumeClaim 
+ разворачивается deployment подами с окружением ``` kubectl creale -f deployment.yaml ```
  - создаем сервис LoadBaalnser ```kubectl creale -f service.yaml```
  - настраиваем service для ingress controller ``` kubectl create -f ingress-controller-lb.yaml ```
  - настройка сомого ингресс для перенаправления запросов основываясь на http URL

@@ -16,9 +16,11 @@ data:
           location / {
             autoindex on;
           }
+          location /conf/file {
+            alias /homework/conf/index.html;
+          }
       }
     }
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -47,10 +49,18 @@ spec:
 #        homework: "true"  # указыввем требуемый Labal ноды  для размещения подов
       volumes:
         - name: vol-httproot
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: pvc-homework
         - name: vol-nginx-config
           configMap:
             name: cmap-webserver
+        - name: vol-random-cm-homework
+          configMap:
+            name: cm-homework
+            items:
+              - key: config_index_html
+                path: index.html
+
       initContainers:
         - name: initindex
           image: alpine
@@ -61,7 +71,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "My index html from HW 2" > /init/index.html
+              echo "My index html from HW 4.  POD name - $(hostname)" > /init/index.html
       containers:
         - name: webserver
           image: nginx
@@ -74,6 +84,7 @@ spec:
             #     - /homework/index.html
             # initialDelaySeconds: 5
             # periodSeconds: 5
+
             httpGet:
               path: /index.html
               port: 8000
@@ -89,6 +100,8 @@ spec:
             - name: vol-nginx-config
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
+            - name: vol-random-cm-homework
+              mountPath: /homework/conf/
           lifecycle:
             preStop:
               exec:
