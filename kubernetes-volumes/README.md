@@ -12,13 +12,14 @@
  - запускается minikube командой ``` minikube start --nodes 3 ```
  - включаем ingress контроллер на minikube ``` minikube addons enable ingress ```
  - из каталога проекта, с помощью утилиты kubectl создается namespace ``` kubectl create -f namespace.yaml ```
+ - создание storageClass ``` kubectl create -f storageClass.yaml ```
  - создание запроса на использование храненища ``` kubectl create -f pvc.yaml ```
  - создания конфигурации для NGINX ``` kubectl create -f cm.yaml ```
  - после успешного создания namrspace, configMap, PersistentVolumeClaim 
  разворачивается deployment подами с окружением ``` kubectl creale -f deployment.yaml ```
- - создаем сервис LoadBaalnser ```kubectl creale -f service.yaml```
+ - создаем сервис LoadBaalnser ```kubectl create -f service.yaml```
  - настраиваем service для ingress controller ``` kubectl create -f ingress-controller-lb.yaml ```
- - настройка сомого ингресс для перенаправления запросов основываясь на http URL
+ - настройка сомого ингресс для перенаправления запросов основываясь на http URL ``` kubectl create -f ingress.yaml ```
  - включить тунелирование ``` minikube tunnel ```
 
 
@@ -27,6 +28,20 @@
     ответом будет сообщение 
     ```console
     homework               Active   45h
+    ```
+  - проверка созданного storageClass ``` kubectl get sc | grep stogarec-class-homework ```
+    stogarec-class-homework   kubernetes.io/no-provisioner   Retain          WaitForFirstConsumer   false                  37m
+  - проверка созданного PV, PVC ``` kubectl get pv && kubectl get pvc -n homework ```
+    ```
+    NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS              VOLUMEATTRIBUTESCLASS   REASON   AGE
+    pv-homework   2Gi        RWO            Retain           Available           stogarec-class-homework   <unset>                          79s
+    NAME           STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS              VOLUMEATTRIBUTESCLASS   AGE
+    pvc-homework   Pending                                      stogarec-class-homework   <unset>                 79s
+    ```
+  - проверка созданнных конфигураций ```kubectl get cm -n homework```
+    ```
+    NAME               DATA   AGE
+    cm-homework        1      21s
     ```
   - проверить созданные поды ``` kubectl get all --namespace homework | grep pod ```
     ``` console
@@ -45,7 +60,7 @@
     ```
     проверим доступность ``` curl http://127.0.0.1:54587 ```    
     ```console
-    My index html from HW 2
+    My index html from HW ...........
     ```
   - проверим как работает ingress controller ``` kubectl get svc ingress-nginx-controller-lb -n ingress-nginx ```
     ```
@@ -57,20 +72,25 @@
     NAME            CLASS   HOSTS           ADDRESS        PORTS   AGE
     ing-webserver   nginx   homework.otus   192.168.49.2   80      24m
     ```
-
-  - проверка надо прописать в hosts файл строку вида ip адресс из вывода ``` kubectl get svc ingress-nginx-controller-lb -n ingress-nginx ``` поля    external-it и имени сервиса из конфигурации  ``` kubectl get ingress -n homework -o yaml | grep host ```
-  ```
+  - проверка надо прописать в hosts файл строку вида ip адресс из вывода ``` kubectl get svc ingress-nginx-controller-lb -n ingress-nginx ```
+      поля    external-it и имени сервиса из конфигурации  ``` kubectl get ingress -n homework -o yaml | grep host ```
   - host: homework.otus
-  ```
-  ``` file: ./hosts
-  10.107.57.45 homework.otus
-  ```
+    ``` file: ./hosts
+    10.107.57.45 homework.otus
+    ```
   - проверяем как рабоатет 
-  curl http://homework.otus
-  curl http://homework.otus/homepage
-в обоих случаях мы увидим 
-```
-My index html from HW 2
-```
+    curl http://homework.otus
+      ``` console
+      My index html from HW 4.  POD name - dpl-webserver.........
+      ```
+    curl http://homework.otus/homepage
+      ``` console
+      My index html from HW 4.  POD name - dpl-webserver.........
+      ```
+    curl curl http://homework.otus/conf/file
+      ``` console
+        randomkey: value
+        secondrandomkey: secondvalue
+      ```
 ## PR checklist:
   - [kubernetes-networks] Выставлен label с темой домашнего задания
