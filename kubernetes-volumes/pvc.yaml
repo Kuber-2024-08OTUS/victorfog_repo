@@ -4,7 +4,7 @@ metadata:
   name: pv-homework
   namespace: homework
 spec:
-  storageClassName: manual
+  storageClassName: stogarec-class-homework # в зависимости от используемого storageclass
   capacity:
     storage: 2Gi
   volumeMode: Filesystem
@@ -21,7 +21,8 @@ metadata:
   name: pvc-homework
   namespace: homework
 spec:
-  storageClassName: manual
+#  storageClassName: manual тспользовать pv созданный выше в этом манифесте
+  storageClassName: stogarec-class-homework # использовать CtorageClass созданный с provisioner local
   accessModes:
     - ReadWriteOnce
   resources:
