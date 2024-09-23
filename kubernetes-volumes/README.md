@@ -93,4 +93,4 @@
         secondrandomkey: secondvalue
       ```
 ## PR checklist:
-  - [kubernetes-networks] Выставлен label с темой домашнего задания
+  - [kubernetes-volumes] Выставлен label с темой домашнего задания
