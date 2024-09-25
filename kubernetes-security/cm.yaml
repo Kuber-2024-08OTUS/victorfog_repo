@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-homework
+  namespace: homework
+data:
+  config_index_html: |
+    randomkey: value
+    secondrandomkey: secondvalue
