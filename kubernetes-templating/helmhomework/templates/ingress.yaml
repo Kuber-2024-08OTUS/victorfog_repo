@@ -6,9 +6,7 @@ metadata:
   name: ing-webserver
   namespace: {{ $.Values.namespace }}
   annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /
+  {{- include "ingress.annotation" . }}
 spec:
   ingressClassName: {{ .className }}
   rules:

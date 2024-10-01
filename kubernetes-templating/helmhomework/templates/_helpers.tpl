@@ -1,4 +1,14 @@
 {{/*
+ну надо было что-то для домашки добавить 
+*/}}
+{{- define "ingress.annotation"}}
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+{{- end -}}
+
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "helmhomework.name" -}}
