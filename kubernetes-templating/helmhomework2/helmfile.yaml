@@ -1,10 +1,10 @@
 environment:
   dev:
     values:
-    - namespace: dev
+     namespace: dev
   prod:
     values:
-    - namespace: prod
+     namespace: prod
 
 releases:
   - name: kafka-dev
