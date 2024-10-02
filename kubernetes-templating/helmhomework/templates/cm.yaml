@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-homework
+  namespace: {{ .Values.namespace }}
+data:
+  config_index_html: |
+    randomkey: value
+    secondrandomkey: secondvalue
+---
+apiVersion: v1
+kind: ConfigMap # создаем конфигурацию для использования в NGINX
+metadata:
+  name: cmap-webserver
+  namespace: {{ .Values.namespace }}
+  labels:
+    HW: kuber-homework
+data:
+  nginx.conf: |
+    events {}
+    http {
+      server {
+          listen {{ .Values.app.network.port}};
+          root /homework;
+
+          location / {
+            autoindex on;
+          }
+          location /conf/file {
+            alias /homework/conf/index.html;
+          }
+      }
+    }

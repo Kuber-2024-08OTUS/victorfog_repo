@@ -1,0 +1,10 @@
+releases:
+  - name: kafka-dev
+    namespace: kafkadev
+    chart: bitnami/kafka
+    values: ["./values-dev.yaml"]
+  - name: kafka-prod
+    namespace: kafkaprod
+    chart: bitnami/kafka
+    version: 30.1.4
+    values: ["./values-prod.yaml"]

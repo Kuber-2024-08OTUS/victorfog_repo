@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dpl-webserver
+  namespace: {{ .Values.namespace }} # homework
+  labels:
+    HW: deployment-kuber-homework
+spec:
+  {{- with .Values.app }}
+  replicas: {{ .replicaCount }} # количество подов которое мы хотим запустить
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1 # максимальное колическтво подов запущенное поверх сузествующих
+       maxUnavailable: 1 # максимальное количество подов выключенных для обновления
+  selector:
+    matchLabels:
+      name: deployment-webserver
+  template:
+    metadata:
+      labels:
+        name: deployment-webserver
+        HW: kuber-homework
+    spec:
+#      nodeSelector:
+#        homework: "true"  # указыввем требуемый Labal ноды  для размещения подов
+      serviceAccountName: monitoring
+      volumes:
+        - name: vol-httproot
+          persistentVolumeClaim:
+            claimName: pvc-homework
+        - name: vol-nginx-config
+          configMap:
+            name: cmap-webserver
+        - name: vol-random-cm-homework
+          configMap:
+            name: cm-homework
+            items:
+              - key: config_index_html
+                path: index.html
+
+      initContainers:
+        - name: initindex-{{ .name}}
+          image: {{ .initimage.name }}:{{ .initimage.vesion }}
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/init"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "My index html from HW 4.  POD name - $(hostname)" > /init/index.html
+      containers:
+        - name: {{ .name }}
+          image: {{ .image.name}}:{{ .image.version}}
+          ports:
+            - containerPort: 8000
+        {{- with .readinessProbe}}
+          {{- if and (.enable) (or (eq .mode "file") (eq .mode "httpGet" )) }}
+          readinessProbe:
+           {{- if eq .mode "file"}}
+            exec:
+              command:
+                - cat
+                - /homework/index.html
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          {{- else if eq .mode "httpGet"}}
+            httpGet:
+              path: /index.html
+              port: 8000
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 5
+            periodSeconds: 5
+           {{- end}} 
+          {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/homework"
+            - name: vol-nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: vol-random-cm-homework
+              mountPath: /homework/conf/
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    rm -f /homework/index.html
+          {{- with .resources }}
+          {{- if .enable }}
+          resources:
+            requests:
+              memory: {{ .min.mem | quote }}
+              cpu: {{ .min.cpu | quote }}
+            limits:
+              memory: {{ quote .max.mem }}
+              cpu: {{ quote .max.cpu }}
+          {{- end -}}
+          {{- end -}}
+{{- end -}}
