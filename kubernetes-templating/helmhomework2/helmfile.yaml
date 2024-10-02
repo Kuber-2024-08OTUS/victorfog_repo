@@ -1,18 +1,16 @@
 enviropments:
   dev:
-    values:
-      - namespaceDev: dev
+    namespaceDev: dev
   prod:
-    values:
-     - namespaceProd: prod
+    namespaceProd: prod
 
 releases:
   - name: kafka-dev
-    namespace: {{ .Enviropments.dev.values.namespaceDev }}
+    namespace: {{ .Enviropments.dev.namespaceDev }}
     chart: bitnami/kafka
     values: ["./envs/{{ .Environment.Name}}/values-dev.yaml"]
   - name: kafka-prod
-    namespace: {{ .Enviropments.dev.values.namespaceProd }}
+    namespace: {{ .Enviropments.prod.namespaceProd }}
     chart: bitnami/kafka
     version: 30.1.4
     values: ["./envs/{{ .Environment.Name}}/values-prod.yaml"]
