@@ -1,20 +1,26 @@
 # Выполнено ДЗ №2
 
  - [X] Основное ДЗ
- - [x] Задание со *
+
 
 ## В процессе сделано:
  - установлен шаблонезатор helm 
  - перенесен проект в шаблонизатор
  - установка mysql (был изменен под arm архитектуру)
+ - снаписан helmfile для запуска нескольких чартов
 
 ## Как запустить проект:
  - запускается minikube командой ``` minikube start --nodes 3 ```
  - включаем ingress контроллер на minikube ``` minikube addons enable ingress ```
- - из каталога ./homework выполнить команду ``` helm install helmapp-1 . --namespace=homework ```
+ - из каталога ./homework выполнить команду ``` helm install helmapp . --namespace=homework ```
  - настройка сомого ингресс для перенаправления запросов основываясь на http URL
    включить тунелирование ``` minikube tunnel ```
 
+ # homework2
+ - добаыить bitnami в repo ```helm repo add bitnami	https://charts.bitnami.com/bitnami```
+ - произвести инициализацию и установить требуемые плагины ```helmfile init```
+ - запустить развертывание kafka из созданного helfile
+ ``` helmfile apply ```
 
 ## Как проверить работоспособность:
  - проверить созданное пространство имен можно командой ``` kubectl get namespace | grep homework ```
@@ -73,6 +79,11 @@
   curl --header "Host: homework.otus" "http://127.0.0.1/homepage"
   curl --header "Host: homework.otus" "http://127.0.0.1//conf/file"
   ```
+# homework2
+- посмотреть количество запущенных контроллеров в namespace dev ```kubectl get pod -n dev | grep kafka-dev-cont | wc -l```
+- посмотреть количество запущенных брокеров в dev ```kubectl get pod -n dev | grep kafka-dev-bro | wc -l```
+- посмотреть количество запущенных контроллеров в namespace prod ```kubectl get pod -n prod | grep kafka-prod-cont | wc -l```
+- посмотреть количество запущенных брокеров в prod ```kubectl get pod -n dev | grep kafka-dev-prod | wc -l```
 
 ## PR checklist:
-  - [kubernetes-networks] Выставлен label с темой домашнего задания
+  - [kubernetes-templating] Выставлен label с темой домашнего задания
