@@ -8,11 +8,11 @@ enviropments:
 
 releases:
   - name: kafka-dev
-    namespace: {{ .Values.namespaceDev }}
+    namespace: {{ .Enviropments.dev.values.namespaceDev }}
     chart: bitnami/kafka
     values: ["./envs/{{ .Environment.Name}}/values-dev.yaml"]
   - name: kafka-prod
-    namespace: {{ .Values.namespaceProd }}
+    namespace: {{ .Enviropments.dev.values.namespaceProd }}
     chart: bitnami/kafka
     version: 30.1.4
     values: ["./envs/{{ .Environment.Name}}/values-prod.yaml"]
