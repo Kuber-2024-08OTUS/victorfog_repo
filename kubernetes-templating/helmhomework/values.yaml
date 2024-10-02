@@ -1,5 +1,5 @@
 namespace: homework
-replicaCount: 3
+
 
 
 # This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
@@ -15,10 +15,11 @@ serviceAccount:
   name: ""
 
 
-
 app:
   name: webserver
   version_hw: 5
+  # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+  replicaCount: 3
   image:
     name: nginx
     version: latest
@@ -29,7 +30,8 @@ app:
     vesion: latest
   readinessProbe:
     enable: enable
-    mode: httpGet #mode allowed "httpGet" or "file" present
+    # The sample mode selection supports two values ​​"httpGet" and "file"
+    mode: httpGet
   resources:
     enable: true
     min:
@@ -46,9 +48,6 @@ app:
 # Default values for helmhomework.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
-replicaCount: 1
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
@@ -157,3 +156,11 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+mysql:
+  mysqlRootPassword: supass
+  mysqlUser: user
+  mysqlPassword: password
+  mysqlDatabase: database
+  image: arm64v8/mysql
+  imageTag: 9.0.1
