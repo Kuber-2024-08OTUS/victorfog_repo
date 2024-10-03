@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-homework
+  namespace: homework
+spec:
+  storageClassName: stogarec-class-homework # в зависимости от используемого storageclass
+  capacity:
+    storage: 2Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+#  persistentVolumeReclaimPolicy: Recycle
+  hostPath:
+    path: /mnt/pv-homework
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-homework
+  namespace: homework
+spec:
+#  storageClassName: manual тспользовать pv созданный выше в этом манифесте
+  storageClassName: stogarec-class-homework # использовать CtorageClass созданный с provisioner local
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
