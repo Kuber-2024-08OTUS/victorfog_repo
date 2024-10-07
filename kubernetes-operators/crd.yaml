@@ -1,7 +1,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: mysql-otus.homework
+  name: mysqls.otus.homework
 
 spec:
 # Область видимости ресурса (namespaced or cluster)
@@ -15,7 +15,7 @@ spec:
     singular: mysql
 # имя отображаемое при выводе
     plural: mysqls
-    shortnames:
+    shortNames:
       - mysql
       - sql
       - db
@@ -39,7 +39,7 @@ spec:
                 password:
                   type: string
                 storage_size:
-                  type: integer
+                  type: string
               required:
                 - image
                 - database
