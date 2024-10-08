@@ -3,6 +3,13 @@ kind: ClusterRole
 metadata:
   name: otus-root
 rules:
-  - apiGroups: ["*"]
-    resources: ["*"]
-    verbs: ["*"]
+# груаав берется из раздела group нашего CRD
+  - apiGroups: ["otus.homework"] 
+# имя ресурса из описанного CRD поле plural
+    resources: ["mysqls"]
+# Действия которые мы разрешаем проводить над нашим ресурсом
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
+# так как у нас используются pv service мы аналошично прописываем их
+  - apiGroups: [""]
+    resources: ["services", "persistentvolumes", "persistentvolumeclaims"]
+    verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
