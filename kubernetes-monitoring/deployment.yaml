@@ -1,0 +1,78 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homework-monitoring
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: nginx_conf_file
+          configMap:
+            name: nginx_conf
+        - name: vol-httproot
+          emptyDir: {}
+
+      initContainers:
+        - name: initindex
+          image: alpine
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/init"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "My index html from HW 8" > /init/index.html
+
+      containers:
+        - name: webserver
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            # exec:
+            #   command:
+            #     - cat
+            #     - /homework/index.html
+            # initialDelaySeconds: 5
+            # periodSeconds: 5
+            httpGet:
+              path: /index.html
+              port: 80
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: nginx_conf_file
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: vol-httproot
+              mountPath: "/homework"
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    rm -f /homework/index.html
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+        - name: nginx-prometheus-exporter
+          images: nginx/nginx-prometheus-exporter:latest
+          args:
+            - -nginx.scrape-uri=http://localhost/stub_status
