@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap # создаем конфигурацию для использования в NGINX
+metadata:
+  name: cmap-webserver
+  namespace: homework
+  labels:
+    HW: kubernetes-controllers
+data:
+  nginx.conf: |
+    events {}
+    http {
+      server {
+          listen 8000;
+          root /homework;
+
+          location / {
+            autoindex on;
+          }
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-webserver
+  namespace: homework
+  labels:
+    HW: kubernetes-controllers
+spec:
+  selector:
+    HW: kubernetes-controllers
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dpl-webserver
+  namespace: homework
+  labels:
+    HW: deployment-kubernetes-controllers
+spec:
+  replicas: 3 # количество подов которое мы хотим запустить
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+       maxSurge: 1 # максимальное колическтво подов запущенное поверх сузествующих
+       maxUnavailable: 1 # максимальное количество подов выключенных для обновления
+  selector:
+    matchLabels:
+      name: deployment-webserver
+  template:
+    metadata:
+      labels:
+        name: deployment-webserver
+        HW: kubernetes-controllers
+    spec:
+      nodeSelector:
+        homework: "true"  # указыввем требуемый Labal ноды  для размещения подов
+      volumes:
+        - name: vol-httproot
+          emptyDir: {}
+        - name: vol-nginx-config
+          configMap:
+            name: cmap-webserver
+      initContainers:
+        - name: initindex
+          image: alpine
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/init"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "My index html from HW 2" > /init/index.html
+      containers:
+        - name: webserver
+          image: nginx
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - /homework/index.html
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: vol-httproot
+              mountPath: "/homework"
+            - name: vol-nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    rm -f /homework/index.html
+          resources:
+            requests:
+              memory: "200Mi"
+              cpu: "250m"
+            limits:
+              memory: "400Mi"
+              cpu: "500m"
