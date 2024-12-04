@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -22,6 +23,3 @@ data:
                  stub_status;
         }
       }
-
-
-
